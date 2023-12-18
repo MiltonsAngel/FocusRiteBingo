@@ -1,0 +1,30 @@
+/* PlayerList.css */
+.player-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+}
+
+.leave-game-button {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.leave-game-button:hover {
+    background-color: #ff3333;
+}

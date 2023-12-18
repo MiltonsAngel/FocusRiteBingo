@@ -1,0 +1,61 @@
+/* BingoModal.css */
+.bingo-modal {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 15px;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    width: 400px;
+    max-width: 80%; 
+}
+
+.congratulations {
+    color: #4CAF50; 
+    margin-bottom: 20px;
+    font-size: 1.5em; 
+}
+
+.bingo-circle {
+    background-color: #FFD700;
+    color: white;
+    border-radius: 50%; 
+    width: 200px; 
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; 
+    font-size: 30px; 
+    font-weight: bold;
+}
+
+.close-button {
+    background-color: #f44336; 
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 20px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+    outline: none; 
+    font-weight: bold; 
+}
+
+.ReactModal__Overlay {
+    background-color: rgba(0, 0, 0, 0.75); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

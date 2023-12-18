@@ -1,0 +1,37 @@
+/* GameBoard.css */
+.game-board {
+    text-align: center;
+    margin: 20px;
+}
+
+.numbers-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 400px;
+    margin: auto;
+}
+
+.number-cell {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; 
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: white; 
+    background-color: #007bff; 
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+
+.number-cell:nth-child(odd) {
+    background-color: #28a745; /* green for odd cells */
+}
+
+.number-cell:nth-child(even) {
+    background-color: #dc3545; /* red for even cells */
+}
+

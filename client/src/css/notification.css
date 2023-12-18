@@ -1,0 +1,23 @@
+.notification {
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+.notification.success {
+    background-color: green;
+}
+
+.notification.failure {
+    background-color: red;
+}
+
+.notification-icon {
+    /* Adjust the size as needed */
+    font-size: 1.2rem;
+}
