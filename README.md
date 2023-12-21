@@ -2,12 +2,12 @@
 <b>A web based bingo game</b>
 
 <h3><b>Central Game Server:</b><h3></br>
-Technology:</b> Node.js and Express.js.</br>
+<b>Technology:</b> Node.js and Express.js.</br>
 <b>Functionality:</b> Acts as the nerve center, managing player connections, game states, and number generation.</br>
 <b>Benefits:</b> Efficient, event-driven environment suitable for real-time applications, enhanced by Express.js for routing and middleware.
 
 <h3><b>Player Clients:</b><h3></br>
-Technology:</b> React</br>
+<b>Technology:</b> React</br>
 <b>Functionality:</b> Provides a responsive and interactive user interface for players to join games, view Bingo cards, and interact in real time.</br>
 <b>Benefits:</b> Enables the creation of dynamic SPAs with efficient rendering and state management.
 
