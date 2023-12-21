@@ -19,7 +19,7 @@
 <h3>Bingo Card Generator:</h3>
 <b>Location:</b> Server-side.</br>
 <b>Functionality:</b> Generates unique Bingo cards for each player.</br>
-<b></b>Benefits:</b> Leverages JavaScript's array and randomization capabilities for efficient and scalable card generation.
+<b>Benefits:</b> Leverages JavaScript's array and randomization capabilities for efficient and scalable card generation.
 
 <h3>Random Number Generator:</h3>
 <b></b>Location:</b> Server-side.</br>
