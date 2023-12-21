@@ -1,5 +1,5 @@
 # FocusRiteBingo
-A web based bingo game
+<b>A web based bingo game</b>
 
 Central Game Server:
 Technology: Node.js and Express.js.
