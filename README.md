@@ -1,13 +1,13 @@
 # FocusRiteBingo
 <b>A web based bingo game</b>
 
-<b>Central Game Server:
-Technology:</b> Node.js and Express.js.
-Functionality: Acts as the nerve center, managing player connections, game states, and number generation.
-Benefits: Efficient, event-driven environment suitable for real-time applications, enhanced by Express.js for routing and middleware.
+<b>Central Game Server:</br>
+Technology:</b> Node.js and Express.js.</br>
+<b>Functionality:</b> Acts as the nerve center, managing player connections, game states, and number generation.
+<b>Benefits:</b> Efficient, event-driven environment suitable for real-time applications, enhanced by Express.js for routing and middleware.
 
-Player Clients:
-Technology: React
+<b>Player Clients:</br>
+Technology:</b> React
 Functionality: Provides a responsive and interactive user interface for players to join games, view Bingo cards, and interact in real time.
 Benefits: Enables the creation of dynamic SPAs with efficient rendering and state management.
 
