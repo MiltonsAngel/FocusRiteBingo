@@ -35,3 +35,15 @@
 <b>Location:</b> Integrated with the server.</br>
 <b>Functionality:</b> Manages players declaring 'Bingo!' and verifies their claims.</br>
 <b>Benefits:</b> Ensures real-time interaction and prompt, accurate winner announcement.
+
+
+<h2>Prerequisites</h2>
+
+Install MongoDB
+Download the MongoDB Community Server:
+
+Go to the MongoDB Download Center https://www.mongodb.com/try/download/community.
+Select the "Windows" tab.
+Choose the latest version.
+Click "Download".
+
