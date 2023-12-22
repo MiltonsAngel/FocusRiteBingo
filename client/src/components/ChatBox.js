@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../css/ChatBox.css'; 
 
-const ChatBox = ({  messages, sendMessage  }) => {
+const ChatBox = ({  messages, sendMessage, isGameStarted  }) => {
     const [newMessage, setNewMessage] = useState('');
 
     const handleSendMessage = (e) => {
@@ -24,6 +24,7 @@ const ChatBox = ({  messages, sendMessage  }) => {
             <form onSubmit={handleSendMessage} className="message-form">
                 <input
                     type="text"
+                    disabled={isGameStarted}
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."

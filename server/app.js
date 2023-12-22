@@ -4,6 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 import gameRoutes from './routes/gameRoutes.js';
 import winnerRoutes from './routes/winnerRoutes.js';
+import playerRoutes from './routes/playerRoutes.js';
 import { connectToServer, getDb } from './config/dbConfig.js';
 import SocketManager from './sockets/socketManager.js';
 
@@ -33,17 +34,17 @@ console.log("Connect websocket...");
 io.on('connection', (socket) => {
     console.log(`New WebSocket connection: ${socket.id}`);
 
-    // Define socket events, like handling game actions
+    
     socket.on('disconnect', () => {
         console.log(`WebSocket disconnected: ${socket.id}`);
     });
 
-    // Additional WebSocket setup if needed
 });
 
 // API routes
 app.use('/api/games', gameRoutes);
 app.use('/api/winner', winnerRoutes);
+app.use('/api/players', playerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -63,9 +64,6 @@ const startServer = async () => {
         const bingoDb = await connectToServer();
         console.log('Database connected:', bingoDb);
 
-       // app.listen(PORT, () => {
-       //     console.log(`Server running on port ${PORT}`);
-       // });
     } catch (error) {
         console.error('Unable to connect to MongoDB:', error);
         process.exit(1);

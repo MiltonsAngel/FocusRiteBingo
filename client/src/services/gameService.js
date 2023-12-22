@@ -21,9 +21,9 @@ const gameService = {
         }
     },
 
-    joinGame: async (gameId, playerId) => {
+    joinGame: async (gameId, player) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/join/${gameId}`, { playerId });
+            const response = await axios.post(`${API_BASE_URL}/join/${gameId}`, { player });
             return response.data;
         } catch (error) {
             console.error('Error joining the game:', error);

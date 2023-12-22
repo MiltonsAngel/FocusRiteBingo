@@ -30,11 +30,11 @@ const Register = ({ isOpen, onClose, onAddPlayer }) => {
             handleFailureAction("Please enter both name and email!");
             return;
         }
-        
+
         const formattedName = name.replace(/ /g, '_');
         const encodedEmail = encodeURIComponent(email);
 
-        let existingPlayer =  cookie.getCookie(formattedName + "_cookie"); 
+        let existingPlayer = cookie.getCookie(formattedName + "_cookie");
 
         if (existingPlayer !== null && existingPlayer === encodedEmail) {
             handleFailureAction("This email is already registered!");
@@ -46,15 +46,17 @@ const Register = ({ isOpen, onClose, onAddPlayer }) => {
         // Generate a UUID for the new player
         const uniqueId = uuidv4();
 
+        //  New player object
         const newPlayer = { id: uniqueId, name, email };
 
-        
         // Set a cookie to expire in 12 hours
         cookie.setCookieWith12HourExpiry(formattedName + "_cookie", encodedEmail);
 
-        const existingPlayers = JSON.parse(localStorage.getItem('players')) || [];
-        existingPlayers.push(newPlayer);
-        localStorage.setItem('players', JSON.stringify(existingPlayers));
+       // const existingPlayers = JSON.parse(localStorage.getItem('players')) || [];
+      //  if (existingPlayers.length < 4) {
+      //      existingPlayers.push(newPlayer);
+      //      localStorage.setItem('players', JSON.stringify(existingPlayers));
+      //  }
 
         handleSuccessAction("Registered successfully!");
         setName('');

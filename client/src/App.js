@@ -1,19 +1,28 @@
 // App.js
 import React from 'react';
 import { useEffect, useState } from 'react';
+
+//  Components
 import GameBoard from './components/GameBoard';
 import BingoCard from './components/BingoCard';
 import PlayerList from './components/PlayerList';
 import ChatBox from './components/ChatBox';
 import NumberDisplay from './components/NumberDisplay';
+import Register from './components/Register';
+import BingoModal from './components/BingoModal';
+import GameStatus from './components/GameStatus.js';
+
+//  Styles
 import './App.css';
+
+//  Services
 import socketService from './utils/socket';
 import gameService from './services/gameService'
 import winnerService from './services/winnerService'
-import Register from '../src/components/Register';
-import BingoModal from '../src/components/BingoModal';
+//import playerService from './services/playerService';
 import cookie from './utils/cookie';
-import GameStatus from './components/GameStatus.js';
+
+
 
 
 const App = () => {
@@ -25,6 +34,7 @@ const App = () => {
     const [startResult, setStartResult] = useState([]);
     const [showRegister, setShowRegister] = useState(false);
     const [clickedNumbers, setClickedNumbers] = useState([]);
+    const [newGame, setNewGame] = useState(false);
 
     //  Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,8 +47,10 @@ const App = () => {
     const [currentPlayer, setCurrentPlayer] = useState([]);
 
     //  MongoDb database states
-    const [startPlayerResult, setStartPlayerResult] = useState([]);
+    const [winningPlayerResult, setWinningPlayerResult] = useState([]);
+    const [joinGameResult, setJoinGameResult] = useState([]);
     const [updateResult, setUpdateResult] = useState([]);
+    const [playerResult, setPlayerResult] = useState([]);
     const [updateGame, setUpdateGame] = useState(0);
 
     const [userCanDeclareBingo, setUserCanDeclareBingo] = useState(false);
@@ -46,42 +58,42 @@ const App = () => {
 
 
     useEffect(() => {
+
         // Connect to server
         socketService.connect();
 
-        //  Check if cookie is available
-        //cookie.getCookie();
-        getPlayers().then(players => {
-            setCurrentPlayers(players || []);
-        }).catch(error => {
-            console.error('Error loading players:', error);
-        });
+        //  Delete any existing player cookies
+       cookie.deleteCookiesEndingWith('_cookie');
 
         // generateBingoCard
         generateBingoCard();
-
-       
-
 
         // return () => {
         //     socketService.disconnect();
         // };
     }, []);
 
-    useEffect(() => {
-        console.log(players);
-        const player = players.find(p => p.name === 'Field Du Boulay');
-        setCurrentPlayer(player);
 
-        console.log("Loading players");
-        console.log(players);
-
-    }, [players]);
-
-    const addPlayer = (newPlayer) => {
-        setCurrentPlayers(currentPlayers => [...currentPlayers, newPlayer]);
+    //Create a new game in MongoDB
+    const GenerateNewGame = async () => {
+        //  Generate a new game
+        const addPlayer = players.length > 0 ? players : [];
+        const result = await gameService.startGame(GameStatus.WAITING, addPlayer, []);
+        setStartResult(result);
+        setNewGame(true);
+        setNewGameMsg("New game generated!");
     };
 
+
+
+    //  TEMP: - For testing purposes
+    useEffect(() => {
+        const player = players.find(p => p.name === 'Field Du Boulay');
+        setCurrentPlayer(player);
+    }, [players, startResult]);
+
+
+    //  Generate a new Bingo card
     const generateBingoCard = () => {
         gameService.generateBingoCard()
             .then(card => {
@@ -90,17 +102,13 @@ const App = () => {
             .catch(error => console.error('Error:', error));
     };
 
-    // const handleClick = (selectedNumber) => {
-    //     if (selectedNumber !== 'FREE' && isNumberCalled(selectedNumber)) {
-    //         setClickedNumbers(prevClickedNumbers => {
-    //             if (!prevClickedNumbers.includes(selectedNumber)) {
-    //                  return [...prevClickedNumbers, selectedNumber];
-    //              }
-    //             return prevClickedNumbers;
-    //         });
-    //      }
-    //  };
+    //  A new player joined the game
+    const addPlayer = (newPlayer) => {
+        handleJoinGame(startResult.insertedId, newPlayer);
+        setCurrentPlayers(currentPlayers => [...currentPlayers, newPlayer]);
+    };
 
+    //  Adds users clicked number from their bingo card
     const handleClick = (selectedNumber, calledNumbers) => {
         if (selectedNumber !== 'FREE' && calledNumbers.includes(selectedNumber)) {
             setClickedNumbers(prevClickedNumbers => {
@@ -112,70 +120,110 @@ const App = () => {
         }
     };
 
-
+    //  When a user clicks the register button to join a game
     const handleRegisterClick = () => {
         setShowRegister(true);
         setIsModalOpen(true);
     };
 
-    const getPlayers = async () => {
-
-        // Check if user data exists in local storage
-        const userData = localStorage.getItem('players');
-
-        if (userData) {
-            try {
-                // Parse the user data from JSON string to an object
-                return JSON.parse(userData);
-            } catch (error) {
-                console.error('Error parsing user data from local storage', error);
-            }
-        }
-
-        // Return null if no user data is found
-        return null;
-    }
-
+    //  Starts a game
     const startGame = async () => {
-        const currentPlayers = await getPlayers();
-
-        if (currentPlayers) {
-            console.log('The current game has: ' + currentPlayers.length + ' Players registered');
-        } else {
-            console.log('No user is currently logged in');
-        }
 
         const numbersCalled = [];
         const initialNumber = await callNumber(); // Get the initial number generated and add to numbersCalled array
         numbersCalled.push(initialNumber);
 
         //  Call the game service to start the game
-        const result = await gameService.startGame(GameStatus.STARTED, currentPlayers, numbersCalled);
-        setStartResult(result);
-        console.log("start result ", result);
+        const updateResult = await gameService.updateGame(startResult.insertedId, GameStatus.IN_PROGRESS, numbersCalled);
+        setUpdateResult(updateResult);
+        console.log("update result ", updateResult);
+        setGameStarted(true);
+        //  Set the initial number called
+        setCalledNumbers(prevNumbers => [...prevNumbers, initialNumber]);
 
-        if (result.insertedId) {
-            //  Set game started
-            setGameStarted(true);
-            //  Set the initial number called
-            setCalledNumbers(prevNumbers => [...prevNumbers, initialNumber]);
+        socketService.startGame(startResult.insertedId);
+
+         //  Broadcast event to room
+        socketService.on('gameStarted', (message) => {
+            setNewGameMsg(message);
+        });
+
+        return () => {
+            socketService.off('gameStarted');
+        }
+
+    };
+
+
+    const handleJoinGame = async (gameId, newPlayer) => {
+        //  Add the new user to players list in game
+        const joinGameResult = await gameService.joinGame(startResult.insertedId, newPlayer);
+        setJoinGameResult(joinGameResult);
+        socketService.joinGame(gameId, newPlayer);
+
+         //  Broadcast event to room
+        socketService.on('playerJoined', (message) => {
+            setNewGameMsg(message);
+        });
+
+        return () => {
+            socketService.off('playerJoined');
+        }
+    };
+
+
+    const handleLeaveGame = async (playerId) => {
+        // Remove player from players list
+        const leavingPlayer = players.find(p => p.id === playerId);
+        removePlayerById(playerId);
+        const gameId = startResult.insertedId;
+        socketService.leaveGame(gameId, leavingPlayer);
+
+         //  Broadcast event to room
+        socketService.on('playerLeft', (message) => {
+            setNewGameMsg(message);
+        });
+
+        return () => {
+            socketService.off('playerLeft');
+        }
+    };
+
+    const removePlayerById = (playerId) => {
+        // Retrieve the players array from Local Storage
+        const localStoragePlayersList = JSON.parse(localStorage.getItem('players')) || [];
+
+        // Filter out the player with the specified id
+        const updatedPlayers = localStoragePlayersList.filter(player => player.id !== playerId);
+
+        //  check if any players are still in the game.
+        // Save the updated players array back to Local Storage
+        localStorage.setItem('players', JSON.stringify(updatedPlayers));
+        setCurrentPlayers(players.filter(player => player.id !== playerId));
+    };
+
+    const handleSendMessage = (newMessageText) => {
+        if (currentPlayer !== undefined) {
+            const newMessage = {
+                sender: currentPlayer.name,
+                text: newMessageText
+            };
+            setMessages(prevMessages => [...prevMessages, newMessage]);
         }
         else {
-            alert("Game did not start properly");
+            alert("Unable to send messages.  You must first register to join this game");
         }
-    };
 
+        socketService.sendChatMessage(startResult.insertedId, currentPlayer, newMessageText);
 
-    const handleJoinGame = (gameId, playerId) => {
-        socketService.joinGame(gameId, playerId);
-    };
+         //  Broadcast event to room
+         socketService.on('chatMessage', (message) => {
+            setNewGameMsg(message);
+        });
 
-    //const handleLeaveGame = (gameId, playerId) => {
-    //    socketService.leaveGame(gameId, playerId);
-    // };
-
-    const handleSendMessage = (gameId, message) => {
-        socketService.sendChatMessage(gameId, message);
+        return () => {
+            socketService.off('chatMessage');
+        }
     };
 
 
@@ -184,10 +232,22 @@ const App = () => {
             const nextNumber = await callNumber();
             setCalledNumbers(prevNumbers => [...prevNumbers, nextNumber]);
             setUpdateGame(prevUpdate => [prevUpdate + 1]);
+
+            socketService.numberCalled(startResult.insertedId, nextNumber);
+
+             //  Broadcast event to room
+            socketService.on('callNumber', (message) => {
+                setNewGameMsg(message);
+            });
+
+            return () => {
+                socketService.off('callNumber');
+            }
         }
         else if (calledNumbers.length === 75) {
             gameService.updateGame(startResult.insertedId, GameStatus.FINISHED, calledNumbers);
             setGameStarted(false);
+            setNewGame(false);
             alert("No more numbers left to draw");
         }
     };
@@ -198,14 +258,12 @@ const App = () => {
                 try {
                     const updateResult = await gameService.updateGame(startResult.insertedId, GameStatus.IN_PROGRESS, calledNumbers);
                     setUpdateResult(updateResult);
-                    console.log("Update result", updateResult);
                 } catch (error) {
                     console.error('Error updating game:', error);
                 }
             };
 
             updateGameAsync();
-            console.log('updated numbers ' + calledNumbers);
         }
     }, [updateGame]);
 
@@ -230,69 +288,59 @@ const App = () => {
     };
 
 
-    //  Add a message to the message list
-    const addMessage = (newMessageText) => {
-        if (currentPlayer !== undefined) {
-            const newMessage = {
-                sender: currentPlayer.name,
-                text: newMessageText
-            };
-            setMessages(prevMessages => [...prevMessages, newMessage]);
-        }
-        else {
-            alert("Unable to send messages.  You must first register to join this game");
-        }
-    };
-
     //  Player declares bingo.
     const declareBingo = (canDeclareBingo, winningNumbers) => {
         if (canDeclareBingo) {
             setUserCanDeclareBingo(canDeclareBingo);
             //  Open modal to display message to the winner
             setBingoModalIsOpen(true)
-            console.log("Bingo declared!");
-            //  Set game finished
+               //  Set game finished
             const updateResult = gameService.updateGame(startResult.insertedId, GameStatus.FINISHED, calledNumbers);
-            console.log("Finishing game ", updateResult);
+            setUpdateResult(updateResult);
+
             //  Update record details of the player who won.
             const winnerResult = winnerService.registerWinner(startResult.insertedId, currentPlayer, winningNumbers);
-            setStartPlayerResult(winnerResult);
-            console.log("Register winner result ", winnerResult);
+            setWinningPlayerResult(winnerResult);
+
             //`Clear called numbers
             setCalledNumbers([]);
             //  Clear clicked numbers
             setClickedNumbers([]);
-            //  Set newgame msg
-            setNewGameMsg('A new game will start soon');
-
+            //  clear messages
+            setMessages([]);
+           
             //  Generate new bingo card
             generateBingoCard();
+            //  Reset the numbers
             gameService.resetNumbers();
-
-            //  enable start button
+            //  enable start and new game buttons
             setGameStarted(false);
+            setNewGame(false);
+
+            //  Broadcast event to room
+            socketService.declareBingo(startResult.insertedId, currentPlayer);
+            socketService.on('declareBingo', (message) => {
+                setNewGameMsg(message);
+            });
+
+            return () => {
+                socketService.off('declareBingo');
+            }
         }
     };
 
-    const handleLeaveGame = (playerId) => {
-        // Remove player from players list
-        const leavingPlayer = players.find(p => p.id === playerId);
-        removePlayerById(playerId);
-        console.log(`${leavingPlayer.name} is leaving the game.`);
-    };
+    //  Display broadcast message to room for 4 seconds
+    useEffect(() => {
+        if (newGameMsg !== null) {
+            // Clear the message after delay
+            setTimeout(() => {
+                setNewGameMsg('');
+            }, 5000);
 
-    const removePlayerById = (playerId) => {
-        // Retrieve the players array from Local Storage
-        const localStoragePlayersList = JSON.parse(localStorage.getItem('players')) || [];
+        }
+    }, [newGameMsg]);
 
-        // Filter out the player with the specified id
-        const updatedPlayers = localStoragePlayersList.filter(player => player.id !== playerId);
 
-        //  check if any players are still in the game.
-        // Save the updated players array back to Local Storage
-        localStorage.setItem('players', JSON.stringify(updatedPlayers));
-        setCurrentPlayers(players.filter(player => player.id !== playerId));
-    };
 
     return (
         <div className="app">
@@ -301,11 +349,15 @@ const App = () => {
             </div>
 
             <div className="game-play-column">
-                <NumberDisplay currentNumber={calledNumbers.length === 0 ? 'waiting...' : calledNumbers[calledNumbers.length - 1]} newGameMsg={newGameMsg} />
+                <NumberDisplay currentNumber={calledNumbers.length === 0 ? 'waiting...' : calledNumbers[calledNumbers.length - 1]} />
+                <div style={{height: 50}}>
+                   {newGameMsg}
+                </div>
                 <BingoCard bingoCard={bingoCard} clickedNumbers={clickedNumbers} onNumberClick={handleClick} calledNumbers={calledNumbers} declareBingo={declareBingo} />
                 <div className="controls">
-                    <button onClick={startGame} disabled={players.length === 4}>Start Game</button>
-                    <button onClick={callNextNumber} disabled={!gameStarted}>Call Next Number</button>
+                    <button onClick={GenerateNewGame} disabled={newGame}>New Game</button>&nbsp;&nbsp;
+                    <button onClick={startGame} disabled={!newGame || gameStarted || players.length === 0}>Start Game</button>&nbsp;&nbsp;
+                    <button onClick={callNextNumber} disabled={!gameStarted || clickedNumbers.length === 24}>Call Next Number</button>
                 </div>
             </div>
 
@@ -313,8 +365,8 @@ const App = () => {
                 {showRegister &&
                     <Register onAddPlayer={addPlayer} isOpen={isModalOpen} onClose={() => setShowRegister(false)} />}
                 <PlayerList players={players} onLeaveGame={handleLeaveGame} />
-                <button style={{ cursor: 'pointer' }} onClick={handleRegisterClick} disabled={players.length === 4}>Join Game</button>
-                <ChatBox currentPlayer={currentPlayer} messages={messages} sendMessage={addMessage} />
+                <button style={{ cursor: 'pointer' }} onClick={handleRegisterClick} disabled={!newGame || gameStarted}>Join Game</button>
+                <ChatBox currentPlayer={currentPlayer} messages={messages} sendMessage={handleSendMessage} isGameStarted={!gameStarted} />
             </div>
 
             <BingoModal isOpen={bingoModalIsOpen} onClose={() => setBingoModalIsOpen(false)} name={currentPlayer !== undefined ? currentPlayer.name : []} />
