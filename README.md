@@ -52,19 +52,19 @@ Click "Download".
 <h5>Clone REPO to your local machine</h5>
 
 <b>Setup Server</b>
-Open application server project in visual studio.
-Open a terminal and navigate to server folder.
-Type <b>npm install</b> - This will restore all pakages
-Type <b>nodemon app.js</b> - This will start the server and connect to your local instance of MongoDB installed previously
-
+Open application server project in visual studio.</br>
+Open a terminal and navigate to server folder.</br>
+Type <b>npm install</b> - This will restore all pakages</br>
+Type <b>nodemon app.js</b> - This will start the server and connect to your local instance of MongoDB installed previously</br>
+</br>
 <b>Setup Client<b>
-Open application client project in visual studio.
-Open a terminal and navigate to client folder.
-Type <b>npm install</b> - This will restore all pakages
-Type <b>npm run start</b> - This will start the client in your browser
-
-<H2>Game Play</H2>
-Once the client loads you will be presented with the bingo game board.  A bingo card will automatically be generate.
+Open application client project in visual studio.</br>
+Open a terminal and navigate to client folder.</br>
+Type <b>npm install</b> - This will restore all pakages</br>
+Type <b>npm run start</b> - This will start the client in your browser</br>
+</br>
+<h2>Game Play</h2>
+Once the client loads you will be presented with the bingo game board.  A bingo card will automatically be generate.</br>
 <ul>
 <li>1. Click New game - A new game will be created in mongoDB.</li>
 <li>2. The Join Game button will then become active.  Click join game and register your name and email.</li>
