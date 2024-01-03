@@ -15,7 +15,7 @@ const connectToServer = async () => {
         return db; // Return the database instance
     } catch (err) {
         console.error("Failed to connect to MongoDB", err);
-        throw err; // Throw the error to be handled by the caller
+        throw err; // Throw error
     }
 };
 

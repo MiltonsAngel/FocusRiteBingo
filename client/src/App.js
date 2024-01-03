@@ -25,8 +25,8 @@ import cookie from './utils/cookie';
 
 
 
-const App = () => {
 
+const App = () => {
     //  Game setup states
     const [bingoCard, setBingoCard] = useState({});
     const [calledNumbers, setCalledNumbers] = useState([]);
@@ -56,14 +56,13 @@ const App = () => {
     const [userCanDeclareBingo, setUserCanDeclareBingo] = useState(false);
 
 
-
     useEffect(() => {
 
         // Connect to server
         socketService.connect();
 
         //  Delete any existing player cookies
-       cookie.deleteCookiesEndingWith('_cookie');
+        cookie.deleteCookiesEndingWith('_cookie');
 
         // generateBingoCard
         generateBingoCard();
@@ -72,25 +71,6 @@ const App = () => {
         //     socketService.disconnect();
         // };
     }, []);
-
-
-    //Create a new game in MongoDB
-    const GenerateNewGame = async () => {
-        //  Generate a new game
-        const addPlayer = players.length > 0 ? players : [];
-        const result = await gameService.startGame(GameStatus.WAITING, addPlayer, []);
-        setStartResult(result);
-        setNewGame(true);
-        setNewGameMsg("New game generated!");
-    };
-
-
-
-    //  TEMP: - For testing purposes
-    useEffect(() => {
-        const player = players.find(p => p.name === 'Field Du Boulay');
-        setCurrentPlayer(player);
-    }, [players, startResult]);
 
 
     //  Generate a new Bingo card
@@ -102,10 +82,37 @@ const App = () => {
             .catch(error => console.error('Error:', error));
     };
 
+
+    //Create a new game in MongoDB
+    const GenerateNewGame = async () => {
+        //  Generate a new game
+        const addPlayer = players.length > 0 ? players : [];
+        const result = await gameService.startGame(GameStatus.WAITING, addPlayer, []);
+        setStartResult(result);
+        //  Reset the numbers
+        gameService.resetNumbers();
+        //`Clear called numbers
+        setCalledNumbers([]);
+        //  Clear clicked numbers
+        setClickedNumbers([]);
+        setNewGame(true);
+        setNewGameMsg("New game generated!");
+    };
+
+
+
+    //  TEMP: - For testing purposes
+    // useEffect(() => {
+    //     const player = players.find(p => p.name === 'Field Du Boulay');
+    //     setCurrentPlayer(player);
+    // }, [players, startResult]);
+
+
     //  A new player joined the game
     const addPlayer = (newPlayer) => {
         handleJoinGame(startResult.insertedId, newPlayer);
         setCurrentPlayers(currentPlayers => [...currentPlayers, newPlayer]);
+        setCurrentPlayer(newPlayer);
     };
 
     //  Adds users clicked number from their bingo card
@@ -143,7 +150,7 @@ const App = () => {
 
         socketService.startGame(startResult.insertedId);
 
-         //  Broadcast event to room
+        //  Broadcast event to room
         socketService.on('gameStarted', (message) => {
             setNewGameMsg(message);
         });
@@ -161,7 +168,7 @@ const App = () => {
         setJoinGameResult(joinGameResult);
         socketService.joinGame(gameId, newPlayer);
 
-         //  Broadcast event to room
+        //  Broadcast event to room
         socketService.on('playerJoined', (message) => {
             setNewGameMsg(message);
         });
@@ -179,7 +186,7 @@ const App = () => {
         const gameId = startResult.insertedId;
         socketService.leaveGame(gameId, leavingPlayer);
 
-         //  Broadcast event to room
+        //  Broadcast event to room
         socketService.on('playerLeft', (message) => {
             setNewGameMsg(message);
         });
@@ -216,8 +223,8 @@ const App = () => {
 
         socketService.sendChatMessage(startResult.insertedId, currentPlayer, newMessageText);
 
-         //  Broadcast event to room
-         socketService.on('chatMessage', (message) => {
+        //  Broadcast event to room
+        socketService.on('chatMessage', (message) => {
             setNewGameMsg(message);
         });
 
@@ -235,7 +242,7 @@ const App = () => {
 
             socketService.numberCalled(startResult.insertedId, nextNumber);
 
-             //  Broadcast event to room
+            //  Broadcast event to room
             socketService.on('callNumber', (message) => {
                 setNewGameMsg(message);
             });
@@ -294,7 +301,7 @@ const App = () => {
             setUserCanDeclareBingo(canDeclareBingo);
             //  Open modal to display message to the winner
             setBingoModalIsOpen(true)
-               //  Set game finished
+            //  Set game finished
             const updateResult = gameService.updateGame(startResult.insertedId, GameStatus.FINISHED, calledNumbers);
             setUpdateResult(updateResult);
 
@@ -308,7 +315,7 @@ const App = () => {
             setClickedNumbers([]);
             //  clear messages
             setMessages([]);
-           
+
             //  Generate new bingo card
             generateBingoCard();
             //  Reset the numbers
@@ -350,8 +357,8 @@ const App = () => {
 
             <div className="game-play-column">
                 <NumberDisplay currentNumber={calledNumbers.length === 0 ? 'waiting...' : calledNumbers[calledNumbers.length - 1]} />
-                <div style={{height: 50}}>
-                   {newGameMsg}
+                <div style={{ height: 50 }}>
+                    {newGameMsg}
                 </div>
                 <BingoCard bingoCard={bingoCard} clickedNumbers={clickedNumbers} onNumberClick={handleClick} calledNumbers={calledNumbers} declareBingo={declareBingo} />
                 <div className="controls">
