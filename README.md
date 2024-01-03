@@ -69,9 +69,9 @@ Once the client loads you will be presented with the bingo game board.  A bingo 
 <li>1. Click New game - A new game will be created in mongoDB.</li>
 <li>2. The Join Game button will then become active.  Click join game and register your name and email.</li>
 <li>3. Once at least one player has joined the start game button will become active.  After clicking the start button the Join Game button will become inactive. (multiple players can join until the start game button is clicked).</li>
-<li>4. Once the game has started the mchat box will become active allowing you to send messages to the room.</li>
+<li>4. Once the game has started the chat box will become active allowing you to send messages to the room.</li>
 <li>5. After clicking start game the initial number will be displayed.  The call next number button will then become active.  Continue to click the button to generate new numbers up to a maximum of 75.</li>
-<li>6. If a called number is on your bingo card select that number by clicking on i.t</li>
+<li>6. If a called number is on your bingo card select that number by clicking on it</li>
 <li>7. Once you have filled your card the Declare Bingo button will become active.  Click Declare Bingo to inform the room that you have won.</li>
 </ul>
 </br>
