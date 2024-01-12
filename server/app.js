@@ -39,7 +39,6 @@ io.on('connection', (socket) => {
 // API routes
 app.use('/api/games', gameRoutes);
 app.use('/api/winner', winnerRoutes);
-app.use('/api/players', playerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
