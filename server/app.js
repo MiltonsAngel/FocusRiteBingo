@@ -6,7 +6,6 @@ import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 import gameRoutes from './routes/gameRoutes.js';
 import winnerRoutes from './routes/winnerRoutes.js';
-import playerRoutes from './routes/playerRoutes.js';
 import { connectToServer } from './config/dbConfig.js';
 import SocketManager from './sockets/socketManager.js';
 import serverConfig from './config/serverConfig.js'
